@@ -32,7 +32,17 @@ The following example will declare a controller that responds to `GET /foo'.
 
 ```ts
 import * as express from 'express';
-import { interfaces, Controller, Get, Post, Delete } from 'inversify-express-utils';
+import { 
+    interfaces,
+    Controller,
+    Response,
+    Get,
+    Post,
+    Delete,
+    RequestBody,
+    RequestParam,
+    QueryParam 
+} from 'inversify-express-utils';
 import { injectable, inject } from 'inversify';
 
 @Controller('/foo')
@@ -47,14 +57,14 @@ export class FooController implements interfaces.Controller {
     }
 
     @Get('/')
-    private list(@QueryParams('start') start: number, @QueryParams('count') cound: number): string {
+    private list(@QueryParam('start') start: number, @QueryParam('count') count: number): string {
         return this.fooService.get(start, count);
     }
 
     @Post('/')
-    private async create(@Response() res: express.Response) {
+    private async create(@RequestBody('data') data: any, @Response() res: express.Response) {
         try {
-            await this.fooService.create(req.body)
+            await this.fooService.create(data)
             res.sendStatus(201)
         } catch (err) {
             res.status(400).json({ error: err.message })
@@ -62,7 +72,7 @@ export class FooController implements interfaces.Controller {
     }
 
     @Delete('/:id')
-    private delete(@RequestParam("id") id: string, @Response() res: express.Response): Promise<void> {
+    private delete(@RequestParam('id') id: string, @Response() res: express.Response): Promise<void> {
         return this.fooService.delete(id)
             .then(() => res.sendStatus(204))
             .catch((err) => {
